@@ -1,10 +1,12 @@
-﻿using System.Globalization;
-using CsvHelper;
+﻿using CsvHelper;
 using CsvHelper.Configuration;
 using FlightScheduler.Data.Context;
-using FlightScheduler.Data.DTOs;
 using FlightScheduler.Domain.Entities.Flight;
+using FlightScheduler.Domain.Entities.Route;
 using FlightScheduler.Domain.Repositories;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using FlightScheduler.DTO.DTOs.Csv;
 
 namespace FlightScheduler.Data.Repositories;
 
@@ -14,6 +16,12 @@ public class FlightRepository : IFlightRepository
     public FlightRepository(FlightSchedulerContext context)
     {
         _context = context;
+    }
+
+    public async Task<List<Flight>> GetFlightsByRouteIds(List<int> routeIds)
+    {
+        var flights = await _context.Flights!.Where(f => routeIds.Contains(f.RouteId)).ToListAsync();
+        return flights;
     }
 
     public async Task InsertFlightsDataFromCsv()

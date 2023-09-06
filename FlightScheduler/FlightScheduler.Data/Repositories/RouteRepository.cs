@@ -2,9 +2,11 @@
 using CsvHelper;
 using CsvHelper.Configuration;
 using FlightScheduler.Data.Context;
-using FlightScheduler.Data.DTOs;
 using FlightScheduler.Domain.Entities.Route;
 using FlightScheduler.Domain.Repositories;
+using FlightScheduler.DTO.DTOs;
+using FlightScheduler.DTO.DTOs.Csv;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightScheduler.Data.Repositories;
 
@@ -14,6 +16,20 @@ public class RouteRepository : IRouteRepository
     public RouteRepository(FlightSchedulerContext context)
     {
         _context = context;
+    }
+
+    public async Task<List<int>> GetRoutesIdsForCitiesInTimeInterval(List<RouteCitiesDto> routeCities, DateTime startDate, DateTime endDate)
+    {
+        var routes = new List<Route>();
+        foreach (var routeCitiesItem in routeCities)
+        {
+            var route = await _context.Routes!.FirstOrDefaultAsync(r =>
+                r.OriginCityId == routeCitiesItem.OriginCityId &&
+                r.DestinationCityId == routeCitiesItem.DestinationCityId && r.DepartureDate>=startDate&& r.DepartureDate<=endDate);
+            if (route != null) routes.Add(route);
+        }
+        var routeIds = routes.Select(r => r.RouteId).ToList();
+        return routeIds;
     }
 
     public async Task InsertRoutesDataFromCsv()
