@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Security.Cryptography.X509Certificates;
 using CsvHelper;
 using CsvHelper.Configuration;
 using FlightScheduler.Data.Context;
@@ -20,16 +21,27 @@ public class RouteRepository : IRouteRepository
 
     public async Task<List<int>> GetRoutesIdsForCitiesInTimeInterval(List<RouteCitiesDto> routeCities, DateTime startDate, DateTime endDate)
     {
-        var routes = new List<Route>();
-        foreach (var routeCitiesItem in routeCities)
-        {
-            var route = await _context.Routes!.FirstOrDefaultAsync(r =>
-                r.OriginCityId == routeCitiesItem.OriginCityId &&
-                r.DestinationCityId == routeCitiesItem.DestinationCityId && r.DepartureDate>=startDate&& r.DepartureDate<=endDate);
-            if (route != null) routes.Add(route);
-        }
-        var routeIds = routes.Select(r => r.RouteId).ToList();
+        //var originCityIds = routeCities.Select(o => o.OriginCityId).ToList();
+        //var destinationCityIds = routeCities.Select(o => o.DestinationCityId).ToList();
+        //var routes = _context.Routes!.Where(r => originCityIds.Contains(r.OriginCityId) && destinationCityIds.Contains(r.DestinationCityId) && r.DepartureDate >= startDate && r.DepartureDate <= endDate);
+        //var rrrr = (from rc in routeCities join r in _context.Routes on  {r.OriginCityId, r.DestinationCityId} equal {rc.OriginCityId, rc.DestinationCityId} select rc).tolist()
+
+
+
+        var routes = await _context.Routes!.Where(r => r.DepartureDate >= startDate && r.DepartureDate <= endDate).ToListAsync();
+        var result = routeCities.Select(routeCitiesItem => routes.FirstOrDefault(r => r.OriginCityId == routeCitiesItem.OriginCityId && r.DestinationCityId == routeCitiesItem.DestinationCityId))
+            .Where(route => route != null).ToList();
+        var routeIds = result.Select(r => r.RouteId).ToList();
         return routeIds;
+        //var routes = new List<Route>();
+        //foreach (var routeCitiesItem in routeCities)
+        //{
+        //    var route = await _context.Routes!.FirstOrDefaultAsync(r =>
+        //        r.OriginCityId == routeCitiesItem.OriginCityId &&
+        //        r.DestinationCityId == routeCitiesItem.DestinationCityId && r.DepartureDate >= startDate && r.DepartureDate <= endDate);
+        //    if (route != null) routes.Add(route);
+        //}
+
     }
 
     public async Task InsertRoutesDataFromCsv()

@@ -2,11 +2,10 @@
 using CsvHelper.Configuration;
 using FlightScheduler.Data.Context;
 using FlightScheduler.Domain.Entities.Flight;
-using FlightScheduler.Domain.Entities.Route;
 using FlightScheduler.Domain.Repositories;
+using FlightScheduler.DTO.DTOs.Csv;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
-using FlightScheduler.DTO.DTOs.Csv;
 
 namespace FlightScheduler.Data.Repositories;
 

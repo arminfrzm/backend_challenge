@@ -29,7 +29,7 @@ public class FlightSchedulerService : IFlightSchedulerService
             }).ToList();
             var routeIds = await _routeRepository.GetRoutesIdsForCitiesInTimeInterval(routeCities, startDate, endDate);
             var flights = await _flightRepository.GetFlightsByRouteIds(routeIds);
-            return flights.OrderBy(f => f.DepartureTime).Select(f => new FlightDto()
+            var result = flights.OrderBy(f => f.DepartureTime).Select(f => new FlightDto()
             {
                 FlightId = f.FlightId,
                 DepartureTime = f.DepartureTime,
@@ -37,6 +37,7 @@ public class FlightSchedulerService : IFlightSchedulerService
                 AirlineId = f.AirlineId,
                 FlightStatus = CalculateFlightStatus(f,flights)
             }).ToList();
+            return result;
         }
         catch (Exception e)
         {
